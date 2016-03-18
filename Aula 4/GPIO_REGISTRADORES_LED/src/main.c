@@ -98,25 +98,25 @@ int main (void)
              * Utilize a função delay_ms para fazer o led piscar na frequência
              * escolhida por você.
              */
-			delay_ms(1000);
+			delay_ms(50);
 			
 			PIOC->PIO_SODR = (1 << PIN_LED_RED );
 			PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
 			PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
 		
-            delay_ms(1000);
+            delay_ms(50);
 			
 			PIOC->PIO_CODR = (1 << PIN_LED_RED );
 			PIOA->PIO_CODR = (1 << PIN_LED_BLUE );
 			PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
 			
-			delay_ms(1000);
+			delay_ms(50);
 			
 			PIOC->PIO_CODR = (1 << PIN_LED_RED );
 			PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
 			PIOA->PIO_CODR = (1 << PIN_LED_GREEN );
 			
-			delay_ms(1000);
+			
 	}
 }
 
