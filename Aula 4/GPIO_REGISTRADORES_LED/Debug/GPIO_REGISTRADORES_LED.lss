@@ -1145,7 +1145,7 @@ int main (void)
 			delay_ms(1000);
   4005cc:	4e11      	ldr	r6, [pc, #68]	; (400614 <main+0x94>)
 			
-			PIOC->PIO_SCDR = (1 << PIN_LED_RED );
+			PIOC->PIO_SODR = (1 << PIN_LED_RED );
   4005ce:	4691      	mov	r9, r2
 			PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
   4005d0:	4d11      	ldr	r5, [pc, #68]	; (400618 <main+0x98>)
@@ -1159,9 +1159,9 @@ int main (void)
   4005d4:	f8df 8044 	ldr.w	r8, [pc, #68]	; 40061c <main+0x9c>
   4005d8:	47c0      	blx	r8
 			
-			PIOC->PIO_SCDR = (1 << PIN_LED_RED );
+			PIOC->PIO_SODR = (1 << PIN_LED_RED );
   4005da:	f44f 1480 	mov.w	r4, #1048576	; 0x100000
-  4005de:	f8c9 408c 	str.w	r4, [r9, #140]	; 0x8c
+  4005de:	f8c9 4030 	str.w	r4, [r9, #48]	; 0x30
 			PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
   4005e2:	f44f 2700 	mov.w	r7, #524288	; 0x80000
   4005e6:	632f      	str	r7, [r5, #48]	; 0x30

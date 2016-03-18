@@ -100,7 +100,7 @@ int main (void)
              */
 			delay_ms(1000);
 			
-			PIOC->PIO_SCDR = (1 << PIN_LED_RED );
+			PIOC->PIO_SODR = (1 << PIN_LED_RED );
 			PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
 			PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
 		
