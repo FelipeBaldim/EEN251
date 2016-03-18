@@ -71,13 +71,15 @@ int main (void)
 
 	// 31.6.46 PIO Write Protection Mode Register
 	// 0: Disables the write protection if WPKEY corresponds to 0x50494F (PIO in ASCII).
-	PIOA->PIO_WPMR = 0 | PIOC->PIO_WPMR = 0;;
+	PIOA->PIO_WPMR = 0 ;
+	PIOC->PIO_WPMR = 0;
 	
 	// 31.6.4 PIO Output Enable Register
 	// value =
 	//	 	1 : Enables the output on the I/O line.
 	//	 	0 : do nothing
-	PIOA->PIO_OER |=  (1 << PIN_LED_BLUE ) |PIOA->PIO_OER |=  (1 << PIN_LED_GREEN ) | PIOC->PIO_OER |=  (1 << PIN_LED_RED );
+	PIOA->PIO_OER |=  (1 << PIN_LED_BLUE ) |  (1 << PIN_LED_GREEN ) ;
+	PIOC->PIO_OER |=  (1 << PIN_LED_RED );
 
 	// 31.6.10 PIO Set Output Data Register
 	// value = 
