@@ -31,7 +31,9 @@
  * | PIOA_19 | PIOA_18 | ... |PIOA_0|
  * ----------------------------------
  */
-#define PIN_LED_BLUE 20
+#define PIN_LED_BLUE 19
+#define PIN_LED_GREEN 20
+#define PIN_LED_RED 20
 
 /**
  * Main function
@@ -80,8 +82,7 @@ int main (void)
 	// value = 
 	// 		1 : Sets the data to be driven on the I/O line.
 	// 		0 : do nothing
-	PIOA->PIO_SODR = (0 << PIN_LED_BLUE );
-	PIOA->PIO_CODR = (1 << PIN_LED_BLUE );
+	
 	
 	
 
@@ -96,9 +97,7 @@ int main (void)
              */
 			delay_ms(1000);
 			PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
-			PIOA->PIO_CODR = (0 << PIN_LED_BLUE );
             delay_ms(1000);
-			PIOA->PIO_SODR = (0 << PIN_LED_BLUE );
 			PIOA->PIO_CODR = (1 << PIN_LED_BLUE );
 	}
 }
