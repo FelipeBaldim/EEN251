@@ -107,7 +107,8 @@ int main (void)
 	/**
 	*	Loop infinito
 	*/
-		while(1){
+		while(1)
+		{
 
             /*
              * Utilize a função delay_ms para fazer o led piscar na frequência
@@ -115,7 +116,7 @@ int main (void)
              */
 			
 			
-			if (PIO_PDSR_P3 == 1)
+			if (((PIOB->PIO_PDSR >> 3) & 1) == 0)
 			{
 			delay_ms(50);
 			
