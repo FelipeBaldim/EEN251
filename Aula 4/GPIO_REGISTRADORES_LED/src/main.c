@@ -135,6 +135,10 @@ int main (void)
 			PIOC->PIO_CODR = (1 << PIN_LED_RED );
 			PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
 			PIOA->PIO_CODR = (1 << PIN_LED_GREEN );
+			
+			delay_ms(50);
+			
+			PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
 			}
 			
 			
