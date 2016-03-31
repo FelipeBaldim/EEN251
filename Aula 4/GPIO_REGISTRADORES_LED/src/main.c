@@ -62,9 +62,9 @@ int main (void)
 	// 29.17.4 PMC Peripheral Clock Enable Register 0
 	// 1: Enables the corresponding peripheral clock.
 	// ID_PIOA = 11 - TAB 11-1
-	PMC->PMC_PCER0 |= ID_PIOA;
-	PMC->PMC_PCER0 |= ID_PIOB;
-	PMC->PMC_PCER0 |= ID_PIOC;
+	PMC->PMC_PCER0 |= 1 << ID_PIOA;
+	PMC->PMC_PCER0 |= 1 << ID_PIOB;
+	PMC->PMC_PCER0 |= 1 << ID_PIOC;
 
 	 //31.6.1 PIO Enable Register
 	// 1: Enables the PIO to control the corresponding pin (disables peripheral control of the pin).	
@@ -89,8 +89,18 @@ int main (void)
 	// 		1 : Sets the data to be driven on the I/O line.
 	// 		0 : do nothing
 	
-	PIO_PUSR |= (1<<3);
+	PIOB->PIO_PUER |= (1 << 3);
 	
+	PIOB->PIO_IFER |= (1 <<3 );	
+	//habilitando filtro
+	
+	PIOB->PIO_SCDR |= 50;
+	//setando o divisor de clock por 100
+	
+	PIOB->PIO_IFSCER |= (1 << 3);
+	// setando o filtro como debouncing
+	
+	PIOB->PIO_PER = (1 << 3);
 	
 	
 
@@ -103,6 +113,10 @@ int main (void)
              * Utilize a função delay_ms para fazer o led piscar na frequência
              * escolhida por você.
              */
+			
+			
+			if (PIO_PDSR_P3 == 1)
+			{
 			delay_ms(50);
 			
 			PIOC->PIO_SODR = (1 << PIN_LED_RED );
@@ -120,6 +134,11 @@ int main (void)
 			PIOC->PIO_CODR = (1 << PIN_LED_RED );
 			PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
 			PIOA->PIO_CODR = (1 << PIN_LED_GREEN );
+			}
+			
+			
+			
+			
 			
 			
 	}
