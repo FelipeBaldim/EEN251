@@ -124,25 +124,25 @@ int main (void)
 			{
 			delay_ms(50);
 			
-			PIOC->PIO_SODR = (1 << PIN_LED_RED );
-			PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
-			PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
+			_pio_set(PIOC,  (1 << PIN_LED_RED ));
+			_pio_set(PIOA,  (1 << PIN_LED_BLUE ) | (1 << PIN_LED_GREEN ));
 		
             delay_ms(50);
 			
-			PIOC->PIO_CODR = (1 << PIN_LED_RED );
-			PIOA->PIO_CODR = (1 << PIN_LED_BLUE );
-			PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
+			_pio_clear(PIOA,  (1 << PIN_LED_BLUE ));
+			_pio_clear(PIOC,  (1 << PIN_LED_RED ));
+			_pio_set(PIOA,  (1 << PIN_LED_GREEN ));
+					
 			
 			delay_ms(50);
 			
-			PIOC->PIO_CODR = (1 << PIN_LED_RED );
-			PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
-			PIOA->PIO_CODR = (1 << PIN_LED_GREEN );
-			
+			_pio_clear(PIOC,  (1 << PIN_LED_RED ));
+			_pio_clear(PIOA,  (1 << PIN_LED_GREEN ));
+			_pio_set(PIOA,  (1 << PIN_LED_BLUE ));
+					
 			delay_ms(50);
 			
-			PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
+			_pio_set(PIOA,  (1 << PIN_LED_GREEN ));
 			}
 			
 			
