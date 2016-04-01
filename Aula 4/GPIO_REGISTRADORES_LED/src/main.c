@@ -93,7 +93,7 @@ int main (void)
 	// 		1 : Sets the data to be driven on the I/O line.
 	// 		0 : do nothing
 	
-	PIOB->PIO_PUER |= (1 << 3);
+	_pio_pull_up(PIOB,(1 << 3),1)
 	
 	PIOB->PIO_IFER |= (1 <<3 );	
 	//habilitando filtro

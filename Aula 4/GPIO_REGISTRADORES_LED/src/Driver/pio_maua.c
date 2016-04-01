@@ -49,7 +49,16 @@ void _pio_set_input( 	Pio *p_pio, const uint32_t ul_mask,	const uint32_t ul_attr
  * \param ul_pull_up_enable Indicates if the pin(s) internal pull-up shall be
  * configured.
  */
-void _pio_pull_up(	Pio *p_pio, const uint32_t ul_mask,	const uint32_t ul_pull_up_enable);
+void _pio_pull_up(	Pio *p_pio, const uint32_t ul_mask,	const uint32_t ul_pull_up_enable)
+{
+	if (ul_pull_up_enable)
+		p_pio->PIO_PUER = ul_mask ;
+	else
+		p_pio->PIO_PUDR = ul_mask ;
+	
+}
+	
+
 
 /**
  * \brief Configure PIO pin internal pull-down.
