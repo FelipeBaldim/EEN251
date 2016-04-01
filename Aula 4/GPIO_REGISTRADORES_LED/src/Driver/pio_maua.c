@@ -68,7 +68,14 @@ void _pio_pull_up(	Pio *p_pio, const uint32_t ul_mask,	const uint32_t ul_pull_up
  * \param ul_pull_down_enable Indicates if the pin(s) internal pull-down shall
  * be configured.
  */
-void _pio_pull_down( Pio *p_pio, const uint32_t ul_mask, const uint32_t ul_pull_down_enable);
+void _pio_pull_down( Pio *p_pio, const uint32_t ul_mask, const uint32_t ul_pull_down_enable)
+
+{
+	if(ul_pull_down_enable)
+		p_pio->PIO_PPDER = ul_mask;
+	else
+		p_pio->PIO_PPDDR = ul_mask;
+}
 
 /**
  * \brief Set a high output level on all the PIOs defined in ul_mask.
