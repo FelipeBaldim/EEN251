@@ -86,7 +86,7 @@ int main (void)
 	//	 	0 : do nothing
 	PIOA->PIO_OER |=  (1 << PIN_LED_BLUE ) |  (1 << PIN_LED_GREEN ) ;
 	PIOC->PIO_OER |=  (1 << PIN_LED_RED );
-	PIOB->PIO_ODR |=  (1 << 3);
+	
 
 	// 31.6.10 PIO Set Output Data Register
 	// value = 
@@ -95,16 +95,14 @@ int main (void)
 	
 	_pio_pull_up(PIOB,(1 << 3),1);
 	
-	PIOB->PIO_IFER |= (1 <<3 );	
-	//habilitando filtro
+	
 	
 	PIOB->PIO_SCDR |= 50;
 	//setando o divisor de clock por 100
 	
-	PIOB->PIO_IFSCER |= (1 << 3);
-	// setando o filtro como debouncing
 	
-	PIOB->PIO_PER = (1 << 3);
+	_pio_set_input(PIOB,(1 << 3),PIO_DEBOUNCE  | PIO_PULLUP);
+	
 	
 	
 

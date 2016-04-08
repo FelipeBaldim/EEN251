@@ -22,8 +22,26 @@
  * \param ul_pull_up_enable Indicates if the pin shall have its pull-up
  * activated.
  */
-void _pio_set_output(	Pio *p_pio, const uint32_t ul_mask,	const uint32_t ul_default_level, const uint32_t ul_pull_up_enable);
-
+void _pio_set_output(	Pio *p_pio, const uint32_t ul_mask,	const uint32_t ul_default_level, const uint32_t ul_pull_up_enable)
+{
+	if( ((PIO_PULLUP) & (ul_attribute)) > 0 )
+	p_pio->PIO_PUER = ul_mask;
+	
+	if( ((PIO_DEGLITCH) & (ul_attribute)) > 0 )
+	{
+		p_pio->PIO_IFER = ul_mask;
+		p_pio->PIO_IFSCDR = ul_mask;
+	}
+	
+	if( ((PIO_DEBOUNCE) & (ul_attribute)) > 0 )
+	{
+		p_pio->PIO_IFER = ul_mask;
+		p_pio->PIO_IFSCER = ul_mask;
+	}
+	p_pio->PIO_PER = ul_mask;
+	p_pio->PIO_OER = ul_mask;
+	
+}
 
 
 
@@ -37,10 +55,30 @@ void _pio_set_output(	Pio *p_pio, const uint32_t ul_mask,	const uint32_t ul_defa
  * \param ul_mask Bitmask indicating which pin(s) to configure as input(s).
  * \param ul_attribute PIO attribute(s).
  */
-void _pio_set_input( 	Pio *p_pio, const uint32_t ul_mask,	const uint32_t ul_attribute);
+void _pio_set_input( 	Pio *p_pio, const uint32_t ul_mask,	const uint32_t ul_attribute)
+{
+	if( ((PIO_PULLUP) & (ul_attribute)) > 0 )
+		p_pio->PIO_PUER = ul_mask;
+	
+	if( ((PIO_DEGLITCH) & (ul_attribute)) > 0 )
+	{
+		p_pio->PIO_IFER = ul_mask;
+		p_pio->PIO_IFSCDR = ul_mask;
+	}
+	
+	if( ((PIO_DEBOUNCE) & (ul_attribute)) > 0 )
+	{
+		p_pio->PIO_IFER = ul_mask;
+		p_pio->PIO_IFSCER = ul_mask;
+	}
+	p_pio->PIO_PER = ul_mask;
+	p_pio->PIO_ODR = ul_mask;
+	
+}
 
-
-
+void _pio_set_div_debounce(	Pio *p_pio, const uint32_t ul_mask, int valor){
+	
+}
 /**
  * \brief Configure PIO internal pull-up.
  *
