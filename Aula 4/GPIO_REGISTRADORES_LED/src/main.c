@@ -84,10 +84,10 @@ int main (void)
 	// value =
 	//	 	1 : Enables the output on the I/O line.
 	//	 	0 : do nothing
-	PIOA->PIO_OER |=  (1 << PIN_LED_BLUE ) |  (1 << PIN_LED_GREEN ) ;
-	PIOC->PIO_OER |=  (1 << PIN_LED_RED );
 	
-
+	_pio_set_output(PIOA,(1 << PIN_LED_BLUE),0,0);
+	_pio_set_output(PIOA,(1 << PIN_LED_GREEN),0,0);
+	_pio_set_output(PIOC,(1 << PIN_LED_RED),0,0);
 	// 31.6.10 PIO Set Output Data Register
 	// value = 
 	// 		1 : Sets the data to be driven on the I/O line.
