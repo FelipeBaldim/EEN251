@@ -88,13 +88,20 @@ void TC0_Handler(void)
     /****************************************************************
 	* Devemos indicar ao TC que a interrupção foi satisfeita.
     ******************************************************************/
-	//ul_dummy = tc_get_status();
+	ul_dummy = tc_get_status(TC0,0);
 
 	/* Avoid compiler warning */
 	UNUSED(ul_dummy);
 
 	/** Muda o estado do LED */
-
+	if((PIOA->PIO_ODSR & (1 << PIN_LED_BLUE)))
+	{
+		pio_clear(PIOA, (1 << PIN_LED_BLUE));
+	}
+	else
+	{
+		pio_set(PIOA, (1 << PIN_LED_BLUE));
+	}
 }
 
 /**
@@ -116,7 +123,7 @@ static void configure_buttons(void)
 
 static void configure_leds(void)
 {
-pio_set(PIOA,(1<<PIN_LED_BLUE));
+	pio_set_output(PORT_LED_BLUE  , MASK_LED_BLUE	,1,0,0);
 }
 
 
@@ -144,7 +151,7 @@ static void configure_tc(void)
     * 
 	*
 	*****************************************************************/
-	pmc_enable_periph_clk(23);
+	pmc_enable_periph_clk(ID_TC0);
 
 	/*****************************************************************
 	* Configura TC para operar no modo de comparação e trigger RC
@@ -242,7 +249,7 @@ static void configure_tc(void)
     * Parametros :
     *   1 - ID do periférico
 	*****************************************************************/
-	NVIC_EnableIRQ(23);
+	NVIC_EnableIRQ(ID_TC0);
 
     
     /*****************************************************************
@@ -262,7 +269,7 @@ static void configure_tc(void)
 /************************************************************************/
 int main(void)
 {
-	pio_set_output(PORT_LED_BLUE  , MASK_LED_BLUE	,1,0,0);
+
 	
 	/* Initialize the SAM system */
 	sysclk_init();
