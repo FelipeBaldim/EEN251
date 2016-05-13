@@ -18,6 +18,7 @@
 
 #include "asf.h"
 
+
 #define PIN_LED_BLUE	19
 #define PIN_LED_RED		20
 #define PIN_LED_GREEN	20
@@ -47,6 +48,7 @@
 #define ID_LED_RED		ID_PIOC
 #define ID_BUT_2		ID_PIOB
 
+
 /**
  *	Define as masks utilziadas
  */
@@ -67,7 +69,11 @@
  */
 static void Button1_Handler(uint32_t id, uint32_t mask)
 {
-	
+//	uint16_t	A;
+//		A=tc_read_rc(TC0,0);
+//	  tc_write_rc(TC0,0,A*0.9);
+	  
+	  tc_write_rc(TC0, 0, tc_read_rc(TC0, 0)*0.9);
 }
 
 /**
@@ -75,7 +81,11 @@ static void Button1_Handler(uint32_t id, uint32_t mask)
  */
 static void Button2_Handler(uint32_t id, uint32_t mask)
 {
-	
+//	uint16_t	B;
+//		B=tc_read_rc(TC0,0);
+//	  tc_write_rc(TC0,0,B*1.1);
+	  
+	  tc_write_rc(TC0, 0, tc_read_rc(TC0, 0)*1.1);
 }
 
 /**
@@ -112,7 +122,23 @@ void TC0_Handler(void)
  */
 static void configure_buttons(void)
 {
+	
+	pmc_enable_periph_clk(ID_PIOB);
+	pio_set_input(PORT_BUT_2, PIN_PUSHBUTTON_1_MASK, PIN_PUSHBUTTON_1_ATTR);
+	pio_set_debounce_filter(PIN_PUSHBUTTON_1_PIO, PIN_PUSHBUTTON_1_MASK, 100);
+	pio_handler_set(PIOB ,PIN_PUSHBUTTON_1_ID , PIN_PUSHBUTTON_1_MASK, PIO_IT_FALL_EDGE, Button1_Handler);
+	pio_enable_interrupt(PIN_PUSHBUTTON_1_PIO, PIN_PUSHBUTTON_1_MASK);
+	NVIC_SetPriority(PIN_PUSHBUTTON_1_ID, 1 );
+	NVIC_EnableIRQ( PIN_PUSHBUTTON_1_ID);
 
+	pmc_enable_periph_clk(ID_PIOC);
+	pio_set_input(PORT_BUT_2, PIN_PUSHBUTTON_2_MASK, PIN_PUSHBUTTON_2_ATTR);
+	pio_set_debounce_filter(PIN_PUSHBUTTON_2_PIO, PIN_PUSHBUTTON_2_MASK, 100);
+	pio_handler_set(PIOC ,PIN_PUSHBUTTON_2_ID , PIN_PUSHBUTTON_2_MASK, PIO_IT_FALL_EDGE, Button2_Handler);
+	pio_enable_interrupt(PIN_PUSHBUTTON_2_PIO, PIN_PUSHBUTTON_2_MASK);
+	NVIC_SetPriority(PIN_PUSHBUTTON_2_ID, 1 );
+	NVIC_EnableIRQ( PIN_PUSHBUTTON_2_ID);	
+	
 }
 
 /**
@@ -124,6 +150,9 @@ static void configure_buttons(void)
 static void configure_leds(void)
 {
 	pio_set_output(PORT_LED_BLUE  , MASK_LED_BLUE	,1,0,0);
+	pio_set_output(PORT_LED_GREEN , MASK_LED_GREEN  ,1,0,0);
+	pio_set_output(PORT_LED_RED	  , MASK_LED_RED	,1,0,0);
+	
 }
 
 
