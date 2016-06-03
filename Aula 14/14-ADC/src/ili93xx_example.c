@@ -3,6 +3,7 @@
 #include "conf_board.h"
 #include "conf_clock.h"
 #include "smc.h"
+#include "arm_math.h"
 
 /** Chip select number to be set */
 #define ILI93XX_LCD_CS      1
@@ -44,12 +45,32 @@ static int16_t gs_s_adc_values[BUFFER_SIZE] = { 0 };
 /* GLOBAL                                                                */
 /************************************************************************/
 int adc_value_old;
-uint32_t tmp;
+uint32_t adcValue;
 int	flag;
+int string1[20];
 
 /************************************************************************/
 /* HANDLER                                                              */
 /************************************************************************/
+void TC0_Handler(void)
+{
+	volatile uint32_t ul_dummy;
+
+    /****************************************************************
+	* Devemos indicar ao TC que a interrupção foi satisfeita.
+    ******************************************************************/
+	int	contador;
+	int contador_2;
+	ul_dummy = tc_get_status(TC0,0);
+
+	/* Avoid compiler warning */
+	UNUSED(ul_dummy);
+
+	
+	adc_start(ADC);
+
+
+}
 
 static void push_button_handle(uint32_t id, uint32_t mask)
 {
@@ -68,13 +89,148 @@ void ADC_Handler(void)
 	
 	/* Checa se a interrupção é devido ao canal 5 */
 	if ((status & ADC_ISR_EOC5)) {
-		tmp = adc_get_channel_value(ADC, ADC_POT_CHANNEL);
+		adcValue = adc_get_channel_value(ADC, ADC_POT_CHANNEL);
+		flag = 1;
 	}
 }
 
 /************************************************************************/
 /* CONFIGs                                                              */
 /************************************************************************/
+
+static void configure_tc(void)
+{
+	/*
+	* Aqui atualizamos o clock da cpu que foi configurado em sysclk init
+	*
+	* O valor atual est'a em : 120_000_000 Hz (120Mhz)
+	*/
+	uint32_t ul_sysclk = sysclk_get_cpu_hz();
+	
+	/****************************************************************
+	* Ativa o clock do periférico TC 0
+	*****************************************************************
+	* 
+    * Parametros : 
+    *  1 - ID do periferico
+    * 
+	*
+	*****************************************************************/
+	pmc_enable_periph_clk(ID_TC0);
+
+	/*****************************************************************
+	* Configura TC para operar no modo de comparação e trigger RC
+	*****************************************************************
+    *
+	* Configura TC para operar no modo de comparação e trigger RC
+	* devemos nos preocupar com o clock em que o TC irá operar !
+	*
+	* Cada TC possui 3 canais, escolher um para utilizar.
+	*
+    * No nosso caso :
+    * 
+	*	MCK		= 120_000_000
+	*	SLCK	= 32_768		(rtc)
+	*
+	* Uma opção para achar o valor do divisor é utilizar a funcao, como ela
+    * funciona ?
+	* tc_find_mck_divisor()
+	*
+    *
+    * Parametros
+    *   1 - TC a ser configurado (TC0,TC1, ...)
+    *   2 - Canal a ser configurado (0,1,2)
+    *   3 - Configurações do TC :
+    *
+    *   Configurações de modo de operação :
+	*	    TC_CMR_ABETRG  : TIOA or TIOB External Trigger Selection 
+	*	    TC_CMR_CPCTRG  : RC Compare Trigger Enable 
+	*	    TC_CMR_WAVE    : Waveform Mode 
+	*
+	*     Configurações de clock :
+	*	    TC_CMR_TCCLKS_TIMER_CLOCK1 : Clock selected: internal MCK/2 clock signal 
+	*	    TC_CMR_TCCLKS_TIMER_CLOCK2 : Clock selected: internal MCK/8 clock signal 
+	*	    TC_CMR_TCCLKS_TIMER_CLOCK3 : Clock selected: internal MCK/32 clock signal 
+	*	    TC_CMR_TCCLKS_TIMER_CLOCK4 : Clock selected: internal MCK/128 clock signal
+	*	    TC_CMR_TCCLKS_TIMER_CLOCK5 : Clock selected: internal SLCK clock signal 
+	*
+	*****************************************************************/
+	tc_init(TC0,0,TC_CMR_CPCTRG |TC_CMR_TCCLKS_TIMER_CLOCK5);
+    
+    /*****************************************************************
+	* Configura valor trigger RC
+    *****************************************************************
+	*
+	* Aqui devemos configurar o valor do RC que vai trigar o reinicio da contagem
+	* devemos levar em conta a frequência que queremos que o TC gere as interrupções
+	* e tambem a frequencia com que o TC está operando.
+	*
+	* Devemos configurar o RC para o mesmo canal escolhido anteriormente.
+	*	
+	*   ^ 
+	*	|	Contador (incrementado na frequencia escolhida do clock)
+	*   |
+	*	|	 	Interrupcao	
+	*	|------#----------- RC
+	*	|	  /
+	*	|   /
+	*	| /
+	*	|-----------------> t
+	*
+    * Parametros :
+    *   1 - TC a ser configurado (TC0,TC1, ...)
+    *   2 - Canal a ser configurado (0,1,2)
+    *   3 - Valor para trigger do contador (RC)
+    *****************************************************************/
+    tc_write_rc(TC0,0,32768);
+	
+	/*****************************************************************
+	* Configura interrupção no TC
+    *****************************************************************
+    * Parametros :
+    *   1 - TC a ser configurado
+    *   2 - Canal
+    *   3 - Configurações das interrupções 
+	* 
+	*        Essas configurações estão definidas no head : tc.h 
+	*
+	*	        TC_IER_COVFS : 	Counter Overflow 
+	*	        TC_IER_LOVRS : 	Load Overrun 
+	*	        TC_IER_CPAS  : 	RA Compare 
+	*	        TC_IER_CPBS  : 	RB Compare 
+	*	        TC_IER_CPCS  : 	RC Compare 
+	*	        TC_IER_LDRAS : 	RA Loading 
+	*	        TC_IER_LDRBS : 	RB Loading 
+	*	        TC_IER_ETRGS : 	External Trigger 
+	*****************************************************************/
+	tc_enable_interrupt(TC0,0,TC_IER_CPCS);
+    
+    /*****************************************************************
+	* Ativar interrupção no NVIC
+    *****************************************************************
+    *
+    * Devemos configurar o NVIC para receber interrupções do TC 
+    *
+    * Parametros :
+    *   1 - ID do periférico
+	*****************************************************************/
+	NVIC_EnableIRQ(ID_TC0);
+
+    
+    /*****************************************************************
+	* Inicializa o timer
+    *****************************************************************
+    *
+    * Parametros :
+    *   1 - TC
+    *   2 - Canal
+	*****************************************************************/
+    tc_start(TC0,0);
+}
+
+
+
+
 
 void configure_lcd()
 {
@@ -191,20 +347,49 @@ void configure_adc(void)
 
 int main(void)
 {
+	float x;
+	int a;
+	int b;
+	
+	
 	sysclk_init();
 	board_init();
-
+	
 	configure_lcd();
 	configure_botao();
 	configure_adc();
+	
 
 	/** Draw text, image and basic shapes on the LCD */
 	ili93xx_set_foreground_color(COLOR_BLACK);
 	ili93xx_draw_string(10, 20, (uint8_t *)"14 - ADC");
-	ili93xx_draw_string(10, 60, (uint8_t *)"RESISTENCIA");
+	ili93xx_draw_string(10, 60, (uint8_t *)"Tensao do pot");
+	ili93xx_draw_string(210, 250, (uint8_t *)"v");
 	ili93xx_draw_circle(120, 175, 50);
 
+	configure_tc();
+
 	while (1) {
+		if(flag == 1){
+			x = (0.00080586080586080586080586080586081*(float)adcValue);
+			
+			ili93xx_set_foreground_color(COLOR_WHITE);
+			ili93xx_draw_string(100,250 , string1);
+			ili93xx_draw_line(120,175,a,b);
+			
+			sprintf(string1,"%f",x);
+			ili93xx_set_foreground_color(COLOR_BLACK);
+			ili93xx_draw_string(100,250 , string1);
+			flag = 0;
+			
+			a = (120 + (int) 50*cos((0.00076717769318432069315327066746752) * (4095 - (float)adcValue)));
+			b = (175 - (int) 50*sin((0.00076717769318432069315327066746752) * (4095 - (float)adcValue)));
+			
+									
+			ili93xx_draw_line(120,175,a,b);
+			
+			
+		}
 	}
 }
 
